@@ -1,28 +1,11 @@
 #include <vector>
 #include <assert.h>
-#include "Matrix.h"
-#include "Layer.h"
+#include "LambdaFunctions.h"
 #include "NeuralNetwork.h"
 
 using namespace std;
 
-
-// ************************ Lambda functions ************************ //
-
-
-
-MyDouble ActivationFunction(const MyDouble& x) { return *new MyDouble(tanh(x.val)); }
-MyDouble ActivationFunctionDerivative(const MyDouble& x) { return MyDouble(1.0f - x.val * x.val); }
-
-MyDouble Multiply(const MyDouble& a, const MyDouble& b) { return a * b; }
-MyDouble Add(const MyDouble& a, const MyDouble& b) { return a + b; }
-
-
-// ************************ Neural Network ************************ //
-
-
-
-NeuralNetwork::NeuralNetwork(){}
+NeuralNetwork::NeuralNetwork() {}
 NeuralNetwork::NeuralNetwork(int size, const vector<int>& layout) {
 	Resize(size);
 	SetLayout(layout);
@@ -49,7 +32,52 @@ void NeuralNetwork::FeedForward(const Matrix<MyDouble>& input) {
 }
 Matrix<MyDouble>& NeuralNetwork::GetOutput() const { return *new Matrix<MyDouble>(this->layers.back().GetValues()); }
 void NeuralNetwork::BackPropagate(const Matrix<MyDouble>& answer) {
-	// TODO: BackProp
+	// Calculating errors for the last layer:
+	vector<Matrix<MyDouble> > errors = *new vector<Matrix<MyDouble> >(this->size);
+	errors.back() = Matrix<MyDouble>::ElementWise(answer, this->layers.back().GetValues(), Subtract);
+	errors.back().Scale([](const MyDouble& x) { return x * x; });
+
+	// Calculating derivatives for the last layer:
+	vector<Matrix<MyDouble> > derivatives = *new vector<Matrix<MyDouble> >(this->size);
+	derivatives.back() = Matrix<MyDouble>::ElementWise(answer, this->layers.back().GetValues(), Subtract);
+	derivatives.back().Scale([](const MyDouble& x) { return *new MyDouble(2) * x; });
+
+	// Back Propagating:
+	for (int i = this->size - 2; i >= 0; i--) {
+		Matrix<MyDouble> weights = this->layers[i].GetWeights();
+		Matrix<MyDouble> bias = this->layers[i].GetBias();
+		Matrix<MyDouble> previous_values_t = Matrix<MyDouble>::Transpose(this->layers[i].GetValues());
+		Matrix<MyDouble> next_values = this->layers[i + 1].GetValues();
+
+		// Calculating gradiant descent:
+		Matrix<MyDouble> gradient = *new Matrix<MyDouble>(next_values);
+		gradient.Scale(ActivationFunctionDerivative);
+
+		// Calculating delta weights:
+		Matrix<MyDouble> delta_weights = Matrix<MyDouble>::ElementWise(errors[i + 1], gradient, Multiply);
+		delta_weights = Matrix<MyDouble>::ElementWise(delta_weights, derivatives[i + 1], Multiply);
+		delta_weights = Matrix<MyDouble>::Product(delta_weights, previous_values_t);
+		delta_weights.Scale([](const MyDouble& x) { return *new MyDouble(NeuralNetwork::learning_rate) * x; });
+		delta_weights = Matrix<MyDouble>::Transpose(delta_weights);
+
+		// Adjusting weights:
+		this->layers[i].SetWeights(Matrix<MyDouble>::ElementWise(weights, delta_weights, Add));
+
+		// Calculating delta biases:
+		Matrix<MyDouble> delta_bias = Matrix<MyDouble>::ElementWise(errors[i + 1], gradient, Multiply);
+		delta_bias = Matrix<MyDouble>::ElementWise(delta_bias, derivatives[i + 1], Multiply);
+		delta_bias.Scale([](const MyDouble& x) { return *new MyDouble(NeuralNetwork::learning_rate) * x; });
+		
+		// Adjusting biases:
+		this->layers[i].SetBias(Matrix<MyDouble>::ElementWise(bias, delta_bias, Add));
+
+		// Calculating derivatives:
+		derivatives[i] = Matrix<MyDouble>::ElementWise(derivatives[i + 1], gradient, Multiply);
+		derivatives[i] = Matrix<MyDouble>::Product(derivatives[i], weights);
+
+		// Calculating errors:
+		errors[i] = Matrix<MyDouble>::Product(errors[i + 1], weights);
+	}
 }
 
 
