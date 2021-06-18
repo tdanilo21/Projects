@@ -1,36 +1,13 @@
 #include <vector>
 #include <assert.h>
-#include "Matrix.h"
+#include "LambdaFunctions.h"
 #include "Layer.h"
 
 using namespace std;
 
-MyDouble::MyDouble(double val) { this->val = val; }
-MyDouble::MyDouble(const MyDouble& other) { *this = other; }
-MyDouble& MyDouble::Random() { return *new MyDouble(((double)rand() / (double)RAND_MAX) * 2 - 1); }
-MyDouble& MyDouble::DotProduct(const vector<MyDouble>& a, const vector<MyDouble>& b) {
-	assert(a.size() == b.size());
-	MyDouble result = *new MyDouble();
-	for (int i = 0; i < a.size(); i++)
-		result += a[i] * b[i];
-	return result;
-}
-MyDouble& MyDouble::operator=(const MyDouble& other) { this->val = other.val; return *this; }
-MyDouble& MyDouble::operator+=(const MyDouble& other) { this->val += other.val; return *this; }
-MyDouble& MyDouble::operator*(const MyDouble& other) const { return *new MyDouble(this->val * other.val); }
-MyDouble& MyDouble::operator+(const MyDouble& other) const { return *new MyDouble(this->val + other.val); }
-
-
-// ************************ Lambda functions ************************ //
-
-MyDouble ActivationFunction(const MyDouble& x) { return *new MyDouble(tanh(x.val)); }
-
-MyDouble Add(const MyDouble& a, const MyDouble& b) { return a + b; }
-
-
-// ********************** Layer ********************** //
-
+Layer::Layer(){}
 Layer::Layer(int size, int next_size) { Resize(size, next_size); }
+
 
 void Layer::Resize(int size, int next_size) {
 	this->size = size;
@@ -60,6 +37,7 @@ void Layer::SetBias(const Matrix<MyDouble>& new_bias) {
 	this->bias = *new Matrix<MyDouble>(new_bias);
 }
 Matrix<MyDouble>& Layer::GetBias() const { return *new Matrix<MyDouble>(this->bias); }
+
 
 Matrix<MyDouble>& Layer::Propagate() const {
 	Matrix<MyDouble> weights_t = Matrix<MyDouble>::Transpose(this->weights);
