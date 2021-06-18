@@ -4,7 +4,6 @@
 #include <chrono>
 #include <assert.h>
 #include <algorithm>
-
 #include "NeuralNetwork.h"
 
 using namespace std;
@@ -13,9 +12,9 @@ struct Data {
 	vector<double> input, answer;
 };
 
-Net* Bot;
+NeuralNetwork Bot;
 vector<Data> trening;
-int n, m;
+vector<double> maxInput = { 1.0f, 1.0f }, maxOutput = { 1.0f };
 
 void Print(const vector<double>& input, const vector<double>& output, const vector<double>& answer, int tc) {
 	cout << "Count: " << tc << "; ";
@@ -34,28 +33,27 @@ void Print(const vector<double>& input, const vector<double>& output, const vect
 void Learn(int tc) {
 
 	double r = ((double)rand() / (double)RAND_MAX) * 4.0f;
-	int ind = min((int)r, 3);
-	vector<double> output;
-	Bot->Train(trening[ind].input, output, trening[ind].answer);
+	int ind = min(int(r), 3);
+	vector<double> output = Bot.Train(trening[ind].input, maxInput, maxOutput, trening[ind].answer);
 	Print(trening[ind].input, output, trening[ind].answer, tc + 1);
 }
 
 void Test(const vector<double>& input, int tc) {
 
-	vector<double> output;
-	Bot->Run(input, output);
+	vector<double> output = Bot.Run(input, maxInput, maxOutput);
 	Print(input, output, {}, tc + 1);
 }
 
-int main()
-{
-	n = 2; m = 1;
-	Bot = new Net({ 2, 4, 1 });
-	for (int a = 0; a < 2; a++) {
-		for (int b = 0; b < 2; b++) {
+int main() {
+
+	int n = 2, m = 1;
+	NeuralNetwork Bot = *new NeuralNetwork(3, { n, 4, m });
+	vector<Data> trening;
+	for (int i = 0; i < 2; i++) {
+		for (int j = 0; j < 2; j++) {
 			Data d;
-			d.input = { (double)a, (double)b };
-			d.answer = { (double)(a ^ b) };
+			d.input = { (double)i, (double)j };
+			d.answer = { (double)(i ^ j) };
 			trening.push_back(d);
 		}
 	}
@@ -63,19 +61,22 @@ int main()
 	int t; cin >> t;
 
 	auto start = chrono::steady_clock::now();
-	for (int i = 0; i < t; i++) Learn(i);
+	for (int i = 0; i < t; i++)
+		Learn(i);
 
 	auto end = chrono::steady_clock::now();
 	auto elapsed1 = chrono::duration_cast<chrono::seconds>(end - start);
 	cout << elapsed1.count() << " seconds" << endl;
 
 	cin >> t;
-	vector<vector<double> > test(t, vector<double>(n));
+	vector<vector<double> > test = *new vector<vector<double> >(t, vector<double>(n));
 	for (int i = 0; i < t; i++)
 		for (int j = 0; j < n; j++)
 			cin >> test[i][j];
+
 	start = chrono::steady_clock::now();
-	for (int i = 0; i < t; i++) Test(test[i], i);
+	for (int i = 0; i < t; i++)
+		Test(test[i], i);
 	end = chrono::steady_clock::now();
 	auto elapsed2 = chrono::duration_cast<chrono::milliseconds>(end - start);
 	cout << elapsed2.count() << " milliseconds" << endl;
