@@ -1,24 +1,9 @@
 #pragma once
 #include <vector>
+#include "MyDouble.h"
 #include "Matrix.h"
 
 using namespace std;
-
-class MyDouble {
-public:
-	double val;
-
-	MyDouble(double val = 0);
-	MyDouble(const MyDouble& other);
-
-	static MyDouble& Random();
-	static MyDouble& DotProduct(const vector<MyDouble>& a, const vector<MyDouble>& b);
-
-	MyDouble& operator=(const MyDouble& other);
-	MyDouble& operator+=(const MyDouble& other);
-	MyDouble& operator*(const MyDouble& other) const;
-	MyDouble& operator+(const MyDouble& other) const;
-};
 
 class Layer {
 
@@ -28,6 +13,7 @@ private:
 	Matrix<MyDouble> values, weights, bias;
 
 public:
+	Layer();
 	Layer(int size, int next_size = 0);
 
 	void Resize(int size, int next_size);
