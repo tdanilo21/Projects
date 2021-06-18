@@ -7,7 +7,6 @@ using namespace std;
 class NeuralNetwork
 {
 private:
-	static constexpr double learning_rate = 0.15f;
 	int size;
 	vector<Layer> layers;
 
@@ -19,6 +18,8 @@ private:
 	Matrix<MyDouble>& GetOutput() const;
 	void BackPropagate(const Matrix<MyDouble>& answer);
 public:
+	static constexpr double learning_rate = 0.15f;
+
 	NeuralNetwork();
 	NeuralNetwork(int size, const vector<int>& layout);
 
