@@ -117,14 +117,14 @@ template<typename T> Matrix<T>& Matrix<T>::Product(const Matrix<T>& a, const Mat
 	Matrix<T> result = Matrix<T>(a.rows, b.cols);
 	for (int i = 0; i < result.rows; i++)
 		for (int j = 0; j < result.cols; j++)
-			result[i][j] = T::DotProduct(a[i], b.GetCol(j));
+			result.data[i][j] = T::DotProduct(a.GetRow(i), b.GetCol(j));
 	return result;
 }
 template<typename T> Matrix<T>& Matrix<T>::Transpose(const Matrix<T>& m) {
 	Matrix<T> result = Matrix<T>(m.cols, m.rows);
 	for (int i = 0; i < m.rows; i++)
 		for (int j = 0; j < m.cols; j++)
-			result[j][i] = T(m[i][j]);
+			result.data[j][i] = T(m.data[i][j]);
 	return result;
 }
 template<typename T> Matrix<T>& Matrix<T>::ElementWise(const Matrix<T>& a, const Matrix<T>& b, T func(const T&, const T&)) {
@@ -133,7 +133,7 @@ template<typename T> Matrix<T>& Matrix<T>::ElementWise(const Matrix<T>& a, const
 	Matrix<T> result = Matrix<T>(a.rows, a.cols);
 	for (int i = 0; i < a.rows; i++)
 		for (int j = 0; j < a.cols; j++)
-			result[i][j] = func(a[i][j], b[i][j]);
+			result.data[i][j] = func(a.data[i][j], b.data[i][j]);
 	return result;
 }
 template<typename T> void Matrix<T>::Scale(T func(const T&)) {
