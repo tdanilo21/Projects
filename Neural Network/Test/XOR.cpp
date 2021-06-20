@@ -34,21 +34,20 @@ void Learn(int tc) {
 
 	double r = ((double)rand() / (double)RAND_MAX) * 4.0f;
 	int ind = min(int(r), 3);
-	vector<double> output = Bot.Train(trening[ind].input, maxInput, maxOutput, trening[ind].answer);
+	vector<double> output = *Bot.Train(trening[ind].input, maxInput, maxOutput, trening[ind].answer);
 	Print(trening[ind].input, output, trening[ind].answer, tc + 1);
 }
 
 void Test(const vector<double>& input, int tc) {
 
-	vector<double> output = Bot.Run(input, maxInput, maxOutput);
+	vector<double> output = *Bot.Run(input, maxInput, maxOutput);
 	Print(input, output, {}, tc + 1);
 }
 
 int main() {
 
 	int n = 2, m = 1;
-	NeuralNetwork Bot = *new NeuralNetwork(3, { n, 4, m });
-	vector<Data> trening;
+	Bot = *new NeuralNetwork(3, { n, 4, m });
 	for (int i = 0; i < 2; i++) {
 		for (int j = 0; j < 2; j++) {
 			Data d;
