@@ -1,11 +1,10 @@
-#include <vector>
 #include <assert.h>
 #include "LambdaFunctions.h"
 #include "Layer.h"
 
 using namespace std;
 
-Layer::Layer(){}
+Layer::Layer() {}
 Layer::Layer(int size, int next_size) { Resize(size, next_size); }
 
 
@@ -24,26 +23,26 @@ void Layer::SetValues(const Matrix<MyDouble>& new_values) {
 	assert(new_values.rows == this->size && new_values.cols == 1);
 	this->values = *new Matrix<MyDouble>(new_values);
 }
-Matrix<MyDouble>& Layer::GetValues() const { return *new Matrix<MyDouble>(this->values); }
+Matrix<MyDouble>* Layer::GetValues() const { return new Matrix<MyDouble>(this->values); }
 
 void Layer::SetWeights(const Matrix<MyDouble>& new_weights) {
 	assert(new_weights.rows == this->size && new_weights.cols == this->next_size);
 	this->weights = *new Matrix<MyDouble>(new_weights);
 }
-Matrix<MyDouble>& Layer::GetWeights() const { return *new Matrix<MyDouble>(this->weights); }
+Matrix<MyDouble>* Layer::GetWeights() const { return new Matrix<MyDouble>(this->weights); }
 
 void Layer::SetBias(const Matrix<MyDouble>& new_bias) {
 	assert(new_bias.rows == this->next_size && new_bias.cols == 1);
 	this->bias = *new Matrix<MyDouble>(new_bias);
 }
-Matrix<MyDouble>& Layer::GetBias() const { return *new Matrix<MyDouble>(this->bias); }
+Matrix<MyDouble>* Layer::GetBias() const { return new Matrix<MyDouble>(this->bias); }
 
 
-Matrix<MyDouble>& Layer::Propagate() const {
-	Matrix<MyDouble> weights_t = Matrix<MyDouble>::Transpose(this->weights);
-	Matrix<MyDouble> next_values = Matrix<MyDouble>::Product(weights_t, this->values);
-	next_values = Matrix<MyDouble>::ElementWise(next_values, this->bias, Add);
-	next_values.Scale(ActivationFunction);
+Matrix<MyDouble>* Layer::Propagate() const {
+	Matrix<MyDouble> weights_t = *Matrix<MyDouble>::Transpose(this->weights);
+	Matrix<MyDouble>* next_values = Matrix<MyDouble>::Product(weights_t, this->values);
+	next_values = Matrix<MyDouble>::ElementWise(*next_values, this->bias, Add);
+	next_values->Scale(ActivationFunction);
 	return next_values;
 }
 void Layer::Reset() { this->values = *new Matrix<MyDouble>(size); }
