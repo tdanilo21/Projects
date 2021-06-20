@@ -1,5 +1,4 @@
 #pragma once
-#include <vector>
 #include "MyDouble.h"
 #include "Matrix.h"
 
@@ -19,12 +18,12 @@ public:
 	void Resize(int size, int next_size);
 	int Size() const;
 	void SetValues(const Matrix<MyDouble>& values);
-	Matrix<MyDouble>& GetValues() const;
+	Matrix<MyDouble>* GetValues() const;
 	void SetWeights(const Matrix<MyDouble>& weights);
-	Matrix<MyDouble>& GetWeights() const;
+	Matrix<MyDouble>* GetWeights() const;
 	void SetBias(const Matrix<MyDouble>& bias);
-	Matrix<MyDouble>& GetBias() const;
+	Matrix<MyDouble>* GetBias() const;
 
-	Matrix<MyDouble>& Propagate() const;
+	Matrix<MyDouble>* Propagate() const;
 	void Reset();
 };
