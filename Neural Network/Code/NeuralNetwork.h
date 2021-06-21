@@ -7,6 +7,7 @@ using namespace std;
 /* TODO LIST:
  *	  Transpose function (Converts data into percentage).
  *    Input and output max data value should be handed in on the construction of object, not every time object is run.
+ *    Use ToArray and FromArray functions from Matrix class.
  *    Back prop should be layer to layer function that class Layer owns.
  */
 
