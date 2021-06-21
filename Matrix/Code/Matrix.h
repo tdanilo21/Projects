@@ -1,11 +1,21 @@
 #pragma once
+#include <iostream>
 #include <vector>
 #include <assert.h>
 
+#include "Log.h"
+
 using namespace std;
+
+/* TODO LIST:
+ *    Operator [].
+ */
 
 template<typename T>
 class Matrix {
+private:
+	void Construct();
+	void Destruct();
 public:
 	int rows, cols;
 	vector<vector<T> > data;
@@ -13,33 +23,42 @@ public:
 	Matrix(int rows = 1, int cols = 1, T defaultData = T());
 	Matrix(const vector<vector<T> >& data);
 	Matrix(const Matrix<T>& m);
+	~Matrix();
 
 	void SetDimensions(int rows, int cols);
 	void SetData(const vector<vector<T> >& data);
 	void SetData(const T& data);
-	vector<T>& GetRow(int index) const;
-	vector<T>& GetCol(int index) const;
+	vector<T>* GetRow(int index) const;
+	vector<T>* GetCol(int index) const;
 	void Randomize();
 
-	static vector<T>& ToArray(const Matrix<T>& m);
-	static Matrix<T>& FromArray(const vector<T>& arr);
+	static vector<T>* ToArray(const Matrix<T>& m);
+	static Matrix<T>* FromArray(const vector<T>& arr);
 
-	static Matrix<T>& Product(const Matrix<T>& a, const Matrix<T>& b);
-	static Matrix<T>& Transpose(const Matrix<T>& m);
-	static Matrix<T>& ElementWise(const Matrix<T>& a, const Matrix<T>& b, T func(const T&, const T&));
+	static Matrix<T>* Product(const Matrix<T>& a, const Matrix<T>& b);
+	static Matrix<T>* Transpose(const Matrix<T>& m);
+	static Matrix<T>* ElementWise(const Matrix<T>& a, const Matrix<T>& b, T func(const T&, const T&));
 	void Scale(T func(const T&));
-
-	vector<T>& operator[](int index);
 };
-
 
 
 // ******************  Implementation  ****************** //
 
 
+
+template<typename T> void Matrix<T>::Construct() {
+	cout << "Constructed: " << this << endl;
+	logMatrix::Construct();
+}
+template<typename T> void Matrix<T>::Destruct() {
+	cout << "Destructed: " << this << endl;
+	logMatrix::Destruct();
+}
+
 template<typename T> Matrix<T>::Matrix(int rows, int cols, T defaultData) {
 	SetDimensions(rows, cols);
 	SetData(defaultData);
+	this->Construct();
 }
 template<typename T> Matrix<T>::Matrix(const vector<vector<T> >& data) {
 	for (int i = 1; i < data.size(); i++)
@@ -47,46 +66,48 @@ template<typename T> Matrix<T>::Matrix(const vector<vector<T> >& data) {
 
 	SetDimensions(data.size(), data[0].size());
 	SetData(data);
+	this->Construct();
 }
-// TODO: m[i][j] -> error??
 template<typename T> Matrix<T>::Matrix(const Matrix<T>& m) {
 	SetDimensions(m.rows, m.cols);
-	for (int i = 0; i < this->rows; i++)
-		for (int j = 0; j < this->cols; j++)
-			this->data[i][j] = *new T(m.data[i][j]);
+	SetData(m.data);
+	this->Construct();
+}
+template<typename T> Matrix<T>::~Matrix() {
+	this->Destruct();
 }
 
 
 template<typename T> void Matrix<T>::SetDimensions(int rows, int cols) {
 	this->rows = rows;
-	this->data = *new vector<vector<T> >(rows);
+	this->data = vector<vector<T> >(rows);
 	this->cols = cols;
-	for (auto& v : this->data) v = *new vector<T>(cols, T());
+	for (auto& v : this->data) v = vector<T>(cols, T());
 }
 template<typename T> void Matrix<T>::SetData(const vector<vector<T> >& data) {
 	for (int i = 0; i < this->rows; i++)
 		for (int j = 0; j < this->cols; j++)
-			this->data[i][j] = *new T(data[i][j]);
+			this->data[i][j] = T(data[i][j]);
 }
 template<typename T> void Matrix<T>::SetData(const T& data) {
 	for (int i = 0; i < this->rows; i++)
 		for (int j = 0; j < this->cols; j++)
-			this->data[i][j] = *new T(data);
+			this->data[i][j] = T(data);
 }
-template<typename T> vector<T>& Matrix<T>::GetRow(int index) const {
+template<typename T> vector<T>* Matrix<T>::GetRow(int index) const {
 	assert(index >= 0 && index < this->rows);
 
-	vector<T> result = vector<T>(this->cols);
+	vector<T>* result = new vector<T>(this->cols);
 	for (int i = 0; i < this->cols; i++)
-		result[i] = T(this->data[index][i]);
+		(*result)[i] = T(this->data[index][i]);
 	return result;
 }
-template<typename T> vector<T>& Matrix<T>::GetCol(int index) const {
+template<typename T> vector<T>* Matrix<T>::GetCol(int index) const {
 	assert(index >= 0 && index < this->cols);
 
-	vector<T> result = vector<T>(this->rows);
+	vector<T>* result = new vector<T>(this->rows);
 	for (int i = 0; i < this->rows; i++)
-		result[i] = T(this->data[i][index]);
+		(*result)[i] = T(this->data[i][index]);
 	return result;
 }
 template<typename T> void Matrix<T>::Randomize() {
@@ -96,44 +117,44 @@ template<typename T> void Matrix<T>::Randomize() {
 }
 
 
-template<typename T> vector<T>& Matrix<T>::ToArray(const Matrix<T>& m) {
-	vector<T> result = vector<T>(this->rows * this->cols);
+template<typename T> vector<T>* Matrix<T>::ToArray(const Matrix<T>& m) {
+	vector<T>* result = new vector<T>(this->rows * this->cols);
 	for (int i = 0; i < m.rows; i++)
 		for (int j = 0; j < m.cols; j++)
-			result[i] = T(m[i][j]);
+			(*result)[i] = T(m.data[i][j]);
 	return result;
 }
-template<typename T> Matrix<T>& Matrix<T>::FromArray(const vector<T>& arr) {
-	Matrix<T> result = Matrix<T>(arr.size());
+template<typename T> Matrix<T>* Matrix<T>::FromArray(const vector<T>& arr) {
+	Matrix<T>* result = new Matrix<T>(arr.size());
 	for (int i = 0; i < arr.size(); i++)
-		result[i][0] = T(arr[i]);
+		result->data[i][0] = T(arr[i]);
 	return result;
 }
 
 
-template<typename T> Matrix<T>& Matrix<T>::Product(const Matrix<T>& a, const Matrix<T>& b) {
+template<typename T> Matrix<T>* Matrix<T>::Product(const Matrix<T>& a, const Matrix<T>& b) {
 	assert(a.cols == b.rows);
 
-	Matrix<T> result = Matrix<T>(a.rows, b.cols);
-	for (int i = 0; i < result.rows; i++)
-		for (int j = 0; j < result.cols; j++)
-			result.data[i][j] = T::DotProduct(a.GetRow(i), b.GetCol(j));
+	Matrix<T>* result = new Matrix<T>(a.rows, b.cols);
+	for (int i = 0; i < a.rows; i++)
+		for (int j = 0; j < b.cols; j++)
+			result->data[i][j] = T::DotProduct(*a.GetRow(i), *b.GetCol(j));
 	return result;
 }
-template<typename T> Matrix<T>& Matrix<T>::Transpose(const Matrix<T>& m) {
-	Matrix<T> result = Matrix<T>(m.cols, m.rows);
+template<typename T> Matrix<T>* Matrix<T>::Transpose(const Matrix<T>& m) {
+	Matrix<T>* result = new Matrix<T>(m.cols, m.rows);
 	for (int i = 0; i < m.rows; i++)
 		for (int j = 0; j < m.cols; j++)
-			result.data[j][i] = T(m.data[i][j]);
+			result->data[j][i] = T(m.data[i][j]);
 	return result;
 }
-template<typename T> Matrix<T>& Matrix<T>::ElementWise(const Matrix<T>& a, const Matrix<T>& b, T func(const T&, const T&)) {
+template<typename T> Matrix<T>* Matrix<T>::ElementWise(const Matrix<T>& a, const Matrix<T>& b, T func(const T&, const T&)) {
 	assert(a.rows == b.rows && a.cols == b.cols);
 
-	Matrix<T> result = Matrix<T>(a.rows, a.cols);
+	Matrix<T>* result = new Matrix<T>(a.rows, a.cols);
 	for (int i = 0; i < a.rows; i++)
 		for (int j = 0; j < a.cols; j++)
-			result.data[i][j] = func(a.data[i][j], b.data[i][j]);
+			result->data[i][j] = func(a.data[i][j], b.data[i][j]);
 	return result;
 }
 template<typename T> void Matrix<T>::Scale(T func(const T&)) {
@@ -141,6 +162,3 @@ template<typename T> void Matrix<T>::Scale(T func(const T&)) {
 		for (int j = 0; j < this->cols; j++)
 			this->data[i][j] = func(this->data[i][j]);
 }
-
-
-template<typename T> vector<T>& Matrix<T>::operator[](int index) { return this->data[index]; }
