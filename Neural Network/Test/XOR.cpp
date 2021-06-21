@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <algorithm>
 #include "NeuralNetwork.h"
+#include "Log.h"
 
 using namespace std;
 
@@ -34,20 +35,27 @@ void Learn(int tc) {
 
 	double r = ((double)rand() / (double)RAND_MAX) * 4.0f;
 	int ind = min(int(r), 3);
-	vector<double> output = *Bot.Train(trening[ind].input, maxInput, maxOutput, trening[ind].answer);
-	Print(trening[ind].input, output, trening[ind].answer, tc + 1);
+	vector<double>* output = Bot.Train(trening[ind].input, maxInput, maxOutput, trening[ind].answer);
+	//Print(trening[ind].input, *output, trening[ind].answer, tc + 1);
+
+	delete output;
 }
 
 void Test(const vector<double>& input, int tc) {
 
-	vector<double> output = *Bot.Run(input, maxInput, maxOutput);
-	Print(input, output, {}, tc + 1);
+	vector<double>* output = Bot.Run(input, maxInput, maxOutput);
+	Print(input, *output, {}, tc + 1);
+
+	delete output;
 }
+
+int logMatrix::construct = 0, logMatrix::destruct = 0;
 
 int main() {
 
 	int n = 2, m = 1;
 	Bot = *new NeuralNetwork(3, { n, 4, m });
+	logMatrix::Print();
 	for (int i = 0; i < 2; i++) {
 		for (int j = 0; j < 2; j++) {
 			Data d;
@@ -56,12 +64,14 @@ int main() {
 			trening.push_back(d);
 		}
 	}
+	logMatrix::Print();
 
 	int t; cin >> t;
 
 	auto start = chrono::steady_clock::now();
 	for (int i = 0; i < t; i++)
 		Learn(i);
+	logMatrix::Print();
 
 	auto end = chrono::steady_clock::now();
 	auto elapsed1 = chrono::duration_cast<chrono::seconds>(end - start);
