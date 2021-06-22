@@ -2,14 +2,9 @@
 #include <iostream>
 #include <vector>
 #include <assert.h>
-
 #include "Log.h"
 
 using namespace std;
-
-/* TODO LIST:
- *    Operator [].
- */
 
 template<typename T>
 class Matrix {
@@ -23,7 +18,6 @@ public:
 	Matrix(int rows = 1, int cols = 1, T defaultData = T());
 	Matrix(const vector<vector<T> >& data);
 	Matrix(const Matrix<T>& m);
-	~Matrix();
 
 	void SetDimensions(int rows, int cols);
 	void SetData(const vector<vector<T> >& data);
@@ -58,7 +52,6 @@ template<typename T> void Matrix<T>::Destruct() {
 template<typename T> Matrix<T>::Matrix(int rows, int cols, T defaultData) {
 	SetDimensions(rows, cols);
 	SetData(defaultData);
-	this->Construct();
 }
 template<typename T> Matrix<T>::Matrix(const vector<vector<T> >& data) {
 	for (int i = 1; i < data.size(); i++)
@@ -66,15 +59,10 @@ template<typename T> Matrix<T>::Matrix(const vector<vector<T> >& data) {
 
 	SetDimensions(data.size(), data[0].size());
 	SetData(data);
-	this->Construct();
 }
 template<typename T> Matrix<T>::Matrix(const Matrix<T>& m) {
 	SetDimensions(m.rows, m.cols);
 	SetData(m.data);
-	this->Construct();
-}
-template<typename T> Matrix<T>::~Matrix() {
-	this->Destruct();
 }
 
 
