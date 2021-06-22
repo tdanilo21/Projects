@@ -1,5 +1,7 @@
 #include <assert.h>
 #include "LambdaFunctions.h"
+#include "MyDouble.h"
+#include "Matrix.h"
 #include "Layer.h"
 
 using namespace std;
