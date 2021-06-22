@@ -1,14 +1,18 @@
 #include <vector>
 #include <assert.h>
 #include "LambdaFunctions.h"
+#include "MyDouble.h"
+#include "Matrix.h"
+#include "Layer.h"
 #include "NeuralNetwork.h"
 
 using namespace std;
 
 NeuralNetwork::NeuralNetwork() {}
-NeuralNetwork::NeuralNetwork(int size, const vector<int>& layout) {
+NeuralNetwork::NeuralNetwork(int size, const vector<int>& layout, const vector<double>& maxInputData, const vector<double>& maxOutputData) {
 	Resize(size);
 	SetLayout(layout);
+	SetMaxData(maxInputData, maxOutputData);
 }
 
 
@@ -19,6 +23,16 @@ void NeuralNetwork::SetLayout(const vector<int>& layout) {
 		int next_size = (i < this->size - 1 ? layout[i + 1] : 0);
 		this->layers[i] = Layer(layout[i], next_size);
 	}
+}
+void NeuralNetwork::SetMaxData(const vector<double>& maxInputData, const vector<double>& maxOutputData) {
+	assert(this->layers[0].Size() == maxInputData.size());
+	assert(this->layers.back().Size() == maxOutputData.size());
+	this->maxInput = Matrix<MyDouble>(maxInputData.size());
+	for (int i = 0; i < maxInputData.size(); i++)
+		this->maxInput.data[i][0] = MyDouble(maxInputData[i]);
+	this->maxOutput = Matrix<MyDouble>(maxOutputData.size());
+	for (int i = 0; i < maxOutputData.size(); i++)
+		this->maxOutput.data[i][0] = MyDouble(maxOutputData[i]);
 }
 
 
@@ -89,14 +103,12 @@ void NeuralNetwork::BackPropagate(const Matrix<MyDouble>& answer) {
 }
 
 
-vector<double>* NeuralNetwork::Run(const vector<double>& inputData, const vector<double>& maxInputData, const vector<double>& maxOutputData) {
+vector<double>* NeuralNetwork::Run(const vector<double>& inputData) {
 	assert(inputData.size() == this->layers[0].Size());
-	assert(maxInputData.size() == this->layers[0].Size());
-	assert(maxOutputData.size() == this->layers.back().Size());
 
 	Matrix<MyDouble> input_mat(this->layers[0].Size());
 	for (int i = 0; i < this->layers[0].Size(); i++)
-		input_mat.data[i][0] = MyDouble(inputData[i] / maxInputData[i]);
+		input_mat.data[i][0] = MyDouble(inputData[i] / this->maxInput.data[i][0].val);
 
 	Reset();
 	FeedForward(input_mat);
@@ -104,24 +116,21 @@ vector<double>* NeuralNetwork::Run(const vector<double>& inputData, const vector
 
 	vector<double>* output = new vector<double>(this->layers.back().Size());
 	for (int i = 0; i < this->layers.back().Size(); i++)
-		(*output)[i] = output_mat->data[i][0].val * maxOutputData[i];
+		(*output)[i] = output_mat->data[i][0].val * this->maxOutput.data[i][0].val;
 
 	delete output_mat;
 	return output;
 }
-vector<double>* NeuralNetwork::Train(const vector<double>& inputData, const vector<double>& maxInputData, const vector<double>& maxOutputData,
-	const vector<double>& answer) {
+vector<double>* NeuralNetwork::Train(const vector<double>& inputData, const vector<double>& answer) {
 
 	assert(inputData.size() == this->layers[0].Size());
-	assert(maxInputData.size() == this->layers[0].Size());
-	assert(maxOutputData.size() == this->layers.back().Size());
 	assert(answer.size() == this->layers.back().Size());
 
-	vector<double>* output = Run(inputData, maxInputData, maxOutputData);
+	vector<double>* output = Run(inputData);
 
 	Matrix<MyDouble> answer_mat(this->layers.back().Size());
 	for (int i = 0; i < this->layers.back().Size(); i++)
-		answer_mat.data[i][0] = MyDouble(answer[i] / maxOutputData[i]);
+		answer_mat.data[i][0] = MyDouble(answer[i] / this->maxOutput.data[i][0].val);
 	BackPropagate(answer_mat);
 
 	return output;
