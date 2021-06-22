@@ -1,3 +1,4 @@
+#include "MyDouble.h"
 #include "LambdaFunctions.h"
 
 using namespace std;
@@ -7,5 +8,6 @@ MyDouble ActivationFunction(const MyDouble& x) { return MyDouble(tanh(x.val)); }
 MyDouble ActivationFunctionDerivative(const MyDouble& x) { return MyDouble(1.0f - x.val * x.val); }
 
 MyDouble Multiply(const MyDouble& a, const MyDouble& b) { return a * b; }
+MyDouble Devide(const MyDouble& a, const MyDouble& b) { return MyDouble(a.val / b.val); }
 MyDouble Add(const MyDouble& a, const MyDouble& b) { return a + b; }
 MyDouble Subtract(const MyDouble& a, const MyDouble& b) { return a - b; }
