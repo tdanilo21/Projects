@@ -18,6 +18,7 @@ public:
 	Matrix(int rows = 1, int cols = 1, T defaultData = T());
 	Matrix(const vector<vector<T> >& data);
 	Matrix(const Matrix<T>& m);
+	~Matrix();
 
 	void SetDimensions(int rows, int cols);
 	void SetData(const vector<vector<T> >& data);
@@ -52,6 +53,7 @@ template<typename T> void Matrix<T>::Destruct() {
 template<typename T> Matrix<T>::Matrix(int rows, int cols, T defaultData) {
 	SetDimensions(rows, cols);
 	SetData(defaultData);
+	Construct()
 }
 template<typename T> Matrix<T>::Matrix(const vector<vector<T> >& data) {
 	for (int i = 1; i < data.size(); i++)
@@ -59,10 +61,15 @@ template<typename T> Matrix<T>::Matrix(const vector<vector<T> >& data) {
 
 	SetDimensions(data.size(), data[0].size());
 	SetData(data);
+	Construct()
 }
 template<typename T> Matrix<T>::Matrix(const Matrix<T>& m) {
 	SetDimensions(m.rows, m.cols);
 	SetData(m.data);
+	Construct()
+}
+template<typename T> Matrix<T>::~Matrix(){
+	Destruct();
 }
 
 
