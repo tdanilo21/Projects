@@ -55,7 +55,8 @@ namespace ConsoleApp1
         #region Funcitons
         public override void Random()
         {
-            this.val = MyDouble.rand.Next();
+            double r = MyDouble.rand.NextDouble();
+            this.val = 2 * r - 1;
         }
         protected override MyDouble OperatorMultiply(MyDouble a)
         {
@@ -79,6 +80,8 @@ namespace ConsoleApp1
     {
         public T[,] data;
         private int rows, cols;
+        public delegate T ElementWiseFunc(T x, T y);
+        public delegate void ScaleFunc(ref T x);
 
         #region Constructors
         public Matrix()
@@ -194,7 +197,7 @@ namespace ConsoleApp1
                     result.data[j, i] = m.data[i, j];
             return result;
         }
-        public static Matrix<T> ElementWise(Matrix<T> a, Matrix<T> b, Func<T, T, T> func)
+        public static Matrix<T> ElementWise(Matrix<T> a, Matrix<T> b, ElementWiseFunc func)
         {
             if (a.rows != b.rows || a.cols != b.cols)
                 throw new Exception("Dimensions of two matrices have to be same!");
@@ -204,11 +207,11 @@ namespace ConsoleApp1
                     result.data[i, j] = func(a.data[i, j], b.data[i, j]);
             return result;
         }
-        public void Scale(Func<T, T> func)
+        public void Scale(ScaleFunc func)
         {
             for (int i = 0; i < this.rows; i++)
                 for (int j = 0; j < this.cols; j++)
-                    this.data[i, j] = func(this.data[i, j]);
+                    func(ref this.data[i, j]);
         }
         #endregion
 
@@ -221,13 +224,31 @@ namespace ConsoleApp1
     class LambdaFunctions
     {
         // Activation function is currently sigmoid
-        public static Func<MyDouble, MyDouble> ActivationFunction = x => { return new MyDouble(Math.Tanh(x.val)); };
-        public static Func<MyDouble, MyDouble> ActivationFunctionDerivative = x => { return new MyDouble(1 - x.val * x.val); };
+        public static void ActivationFunction(ref MyDouble x)
+        {
+            x = new MyDouble(Math.Tanh(x.val));
+        }
+        public static void ActivationFunctionDerivative(ref MyDouble x)
+        {
+            x = new MyDouble(1) - x * x;
+        }
 
-        public static Func<MyDouble, MyDouble, MyDouble> Multiply = (x, y) => { return new MyDouble(x * y); };
-        public static Func<MyDouble, MyDouble, MyDouble> Devide = (x, y) => { return new MyDouble(x / y); };
-        public static Func<MyDouble, MyDouble, MyDouble> Add = (x, y) => { return new MyDouble(x + y); };
-        public static Func<MyDouble, MyDouble, MyDouble> Subtract = (x, y) => { return new MyDouble(x - y); };
+        public static MyDouble Multiply(MyDouble x, MyDouble y)
+        {
+            return x * y;
+        }
+        public static MyDouble Devide(MyDouble x, MyDouble y)
+        {
+            return x / y;
+        }
+        public static MyDouble Add(MyDouble x, MyDouble y)
+        {
+            return x + y;
+        }
+        public static MyDouble Subtract(MyDouble x, MyDouble y)
+        {
+            return x - y;
+        }
     }
     class Layer
     {
@@ -383,17 +404,17 @@ namespace ConsoleApp1
         }
         private void BackPropagate(Matrix<MyDouble> answer)
         {
-            // TODO
+            Matrix<MyDouble> last_values = this.layers[this.size - 1].GetValues();
+
             // Calculating errors for the last layer:
             Matrix<MyDouble>[] errors = new Matrix<MyDouble>[this.size];
-            Matrix<MyDouble> last_values = this.layers[this.size - 1].GetValues();
             errors[this.size - 1] = Matrix<MyDouble>.ElementWise(answer, last_values, LambdaFunctions.Subtract);
-            errors[this.size - 1].Scale(x => x * x);
+            errors[this.size - 1].Scale((ref MyDouble x) => x *= x);
 
             // Calculating derivatives for the last layer:
             Matrix<MyDouble>[] derivatives = new Matrix<MyDouble>[this.size];
             derivatives[this.size - 1] = Matrix<MyDouble>.ElementWise(answer, last_values, LambdaFunctions.Subtract);
-            derivatives[this.size - 1].Scale(x => x * new MyDouble(2));
+            derivatives[this.size - 1].Scale((ref MyDouble x) => x *= new MyDouble(2));
 
             // Back Propagating:
             for (int i = this.size - 2; i >= 0; i--)
@@ -411,7 +432,7 @@ namespace ConsoleApp1
                 Matrix<MyDouble> delta_weights = Matrix<MyDouble>.ElementWise(errors[i + 1], gradient, LambdaFunctions.Multiply);
                 delta_weights = Matrix<MyDouble>.ElementWise(delta_weights, derivatives[i + 1], LambdaFunctions.Multiply);
                 delta_weights = Matrix<MyDouble>.Product(delta_weights, values_t);
-                delta_weights.Scale(x => x * NeuralNetwork.learningRate);
+                delta_weights.Scale((ref MyDouble x) => x *= NeuralNetwork.learningRate);
                 delta_weights = Matrix<MyDouble>.Transpose(delta_weights);
 
                 // Adjusting weights:
@@ -421,7 +442,7 @@ namespace ConsoleApp1
                 // Calculating delta biases:
                 Matrix<MyDouble> delta_bias = Matrix<MyDouble>.ElementWise(errors[i + 1], gradient, LambdaFunctions.Multiply);
                 delta_bias = Matrix<MyDouble>.ElementWise(delta_bias, derivatives[i + 1], LambdaFunctions.Multiply);
-                delta_bias.Scale(x => x * NeuralNetwork.learningRate);
+                delta_bias.Scale((ref MyDouble x) => x *= NeuralNetwork.learningRate);
 
                 // Adjusting biases:
                 Matrix<MyDouble> new_bias = Matrix<MyDouble>.ElementWise(bias, delta_bias, LambdaFunctions.Add);
@@ -505,11 +526,9 @@ namespace ConsoleApp1
             if (tc % 2 == 0) Console.WriteLine();
 
         }
-        static void Learn(NeuralNetwork Bot, Data[] trening, int tc)
+        static void Learn(NeuralNetwork Bot, in Data[] trening, int tc)
         {
             int ind = new Random().Next(4);
-            if (ind == 4)
-                throw new Exception("Index was outside of bounds!");
             double[] output = Bot.Train(trening[ind].input, trening[ind].answer);
             Print(trening[ind].input, output, trening[ind].answer, tc + 1);
         }
@@ -534,7 +553,7 @@ namespace ConsoleApp1
             #endregion
             int t = int.Parse(Console.ReadLine());
             for (int i = 0; i < t; i++)
-                Learn(Bot, trening, i);
+                Learn(Bot, in trening, i);
         }
     }
 }
