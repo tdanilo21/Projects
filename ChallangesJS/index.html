@@ -1,0 +1,92 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="home.css">
+    <title>Challanges</title>
+</head>
+<body>
+    <div class="Challange">
+        <h2 class="Title">Challange 1: Your age in days</h2>
+        <div class="FlexBox-inner">
+            <button class="Btn Btn-blue" id="ch-1-start-button">Start</button>
+            <button class="Btn Btn-red" id="ch-1-clear-button">Reset</button>
+        </div>
+        <div class="Container" id='result-1'></div>
+    </div>
+
+    <div class="Challange">
+        <h2 class="Title">Challange 2: Cat generator</h2>
+        <div class="FlexBox-inner">
+            <button class="Btn Btn-green" id="ch-2-generate-button">Generate cat</button>
+            <button class="Btn Btn-red" id="ch-2-clear-button">Clear cats</button>
+        </div>
+        <div class="FlexBox-cat" id='result-2'></div>
+    </div>
+
+    <div class="Challange">
+        <h2 class="Title">Challange 3: Rock, Paper, Scissors</h2>
+        <div class="FlexBox" id='result-3'></div>
+    </div>
+
+    <div class="Challange">
+        <h2 class="Title">Challange 4: Change the color of all buttons</h2>
+        <div class="FlexBox">
+            <form action="">
+                <select id='ch-3-selection-button'>
+                    <option value="random">Random</option>
+                    <option value="red">Red</option>
+                    <option value="green">Green</option>
+                    <option value="reset">Reset</option>
+                </select>
+            </form>
+            <button class="Btn Btn-blue">Weee</button>
+            <button class="Btn Btn-red">Yahoo</button>
+            <button class="Btn Btn-yellow">Google</button>
+            <button class="Btn Btn-green">Facebook</button>
+        </div>
+    </div>
+
+    <div class="Challange">
+        <h2 class="Title">Challange 5: BlackJack</h2>
+        <h1><span id="bj-result">Let's play!</span></h1>
+
+        <div class="FlexBox" id="bj-row-1" style="background-color: darkgreen;">
+            <div class="BJ-table-side" id="your-side">
+                <h2 class="Title" style="color: white; margin-top: 0;">You: <span id="your-count">0</span></h2>
+                <div class="Container" id="your-cards"></div>
+            </div>
+            <div class="BJ-table-side" id="dealers-side">
+                <h2 class="Title" style="color: white; margin-top: 0;">Dealer: <span id="dealers-count">0</span></h2>
+                <div class="Container" id="dealers-cards"></div>
+            </div>
+        </div>
+
+        <div class="FlexBox" id="bj-row-2" style="background-color: darkgreen; padding-top: 0;">
+            <div id="buttons">
+                <button class="Btn Btn-blue" style="margin: 5" id="ch-5-hit-button">Hit</button>
+                <button class="Btn Btn-yellow" style="margin: 5" id="ch-5-stand-button">Stand</button>
+                <button class="Btn Btn-red" style="margin: 5" id="ch-5-deal-button">Deal</button>
+            </div>
+        </div>
+
+        <div class="FlexBox" id="bj-row-3">
+            <table>
+                <tr>
+                    <th>Wins</th>
+                    <th>Losses</th>
+                    <th>Draws</th>
+                </tr>
+                <tr>
+                    <td><span id="win-count">0</span></td>
+                    <td><span id="loss-count">0</span></td>
+                    <td><span id="draw-count">0</span></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <script src="home.js"></script>
+</body>
+</html>

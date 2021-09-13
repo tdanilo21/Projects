@@ -1,0 +1,104 @@
+.Challange{
+    border: 1px solid black;
+    text-align: center;
+    width: 75%;
+    margin: 0 auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.Container{
+    margin: 0 auto;
+}
+
+.BJ-table-side{
+    border: 1px solid black;
+    padding: 10px;
+    flex: 1;
+    text-align: center;
+    height: 600;
+}
+
+.BJ-table-side img{
+    width: 25%;
+    padding: 10px;
+}
+
+.Container h2{
+    margin: 0 auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.FlexBox-cat, .FlexBox, .FlexBox-inner{
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.FlexBox-inner{
+    width: 50%;
+    margin: 0 auto;
+}
+
+.FlexBox-cat img{
+    margin: 20px;
+    box-shadow: 0px 10px 50px rgba(0, 0, 0, 0.7);
+}
+
+table, th, td{
+    padding: 5px;
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+.Title{
+    font-weight: bold;
+    font-size: 40px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.Text-red{
+    color: red;
+}
+
+.Text-green{
+    color: green;
+}
+
+.Btn{
+    font-weight: bold;
+    width: 90px;
+    height: 40px;
+    margin: 20px;
+}
+
+.Btn-red{
+    color: white;
+    background-color: red;
+}
+.Btn-blue{
+    color: white;
+    background-color: royalblue;
+}
+.Btn-green{
+    color: white;
+    background-color: green;
+}
+.Btn-yellow{
+    background-color: yellow;
+    color: black;
+}
+
+.RPSimg, .RPSimg-clickable{
+    margin: 20px;
+    width: 150px;
+    height: 150px;
+}
+
+.RPSimg-clickable:hover{
+    box-shadow: 0px 10px 50px rgba(37, 50, 233, 1);
+}
